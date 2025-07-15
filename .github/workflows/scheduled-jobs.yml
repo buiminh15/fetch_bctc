@@ -1,0 +1,59 @@
+# Tên của luồng công việc, sẽ hiển thị trong tab "Actions" trên GitHub
+name: Lịch chạy API Báo cáo Tài chính
+
+on:
+  # Cho phép chạy thủ công từ giao diện GitHub để kiểm tra
+  workflow_dispatch:
+
+  schedule:
+    # LƯU Ý: Toàn bộ thời gian được tính theo múi giờ UTC.
+    # UTC nhanh hơn giờ Việt Nam (UTC+7) 7 tiếng.
+    # Ví dụ: 00:00 UTC là 07:00 sáng tại Việt Nam.
+
+    # Chạy mỗi 2 giờ, từ ngày 10 đến 30 tháng 4
+    - cron: "0 */2 10-30 4 *"
+
+    # Chạy mỗi 2 giờ, trong suốt tháng 5
+    - cron: "0 */2 * 5 *"
+
+    # Chạy mỗi 2 giờ, từ ngày 10 đến 31 tháng 7
+    - cron: "0 */2 10-31 7 *"
+
+    # Chạy mỗi 2 giờ, từ ngày 10 đến 31 tháng 10
+    - cron: "0 */2 10-31 10 *"
+
+    # Chạy mỗi 2 giờ, trong suốt tháng 1
+    - cron: "0 */2 * 1 *"
+
+    # Chạy mỗi 2 giờ, trong suốt tháng 2
+    - cron: "0 */2 * 2 *"
+
+    # Chạy mỗi 2 giờ, trong suốt tháng 3
+    - cron: "0 */2 * 3 *"
+
+jobs:
+  run-cron-job:
+    # Chạy trên môi trường Ubuntu mới nhất do GitHub cung cấp
+    runs-on: ubuntu-latest
+
+    steps:
+      # Bước 1: Checkout mã nguồn của bạn từ repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Bước 2: Thiết lập môi trường Node.js
+      # Đảm bảo phiên bản Node.js phù hợp với dự án của bạn
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20.x"
+          cache: "npm" # Bật cache để tăng tốc độ cài đặt ở các lần chạy sau
+
+      # Bước 3: Cài đặt các dependencies từ package.json
+      # Điều kiện cần: Dự án của bạn phải có file package.json
+      - name: Install dependencies
+        run: npm install
+
+      # Bước 4: Chạy file script chính của bạn
+      - name: Run the cron job script
+        run: node all-cronjobs.js
