@@ -57,3 +57,7 @@ jobs:
       # Bước 4: Chạy file script chính của bạn
       - name: Run the cron job script
         run: node all-cronjobs.js
+        env:
+          # Ánh xạ GitHub Secrets vào biến môi trường mà code Node.js mong đợi
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
