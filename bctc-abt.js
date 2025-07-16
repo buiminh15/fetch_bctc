@@ -42,6 +42,7 @@ async function fetchAndExtractData() {
         return false; // Break the loop after 10 elements
       }
     });
+    console.log('📢 [bctc-abt.js:45]', data);
     const newFinancialReports = await filterNewNames(data, COMPANIES.ABT);
     if (newFinancialReports.length) {
       await insertBCTC(newFinancialReports, COMPANIES.ABT);

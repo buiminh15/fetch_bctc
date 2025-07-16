@@ -40,6 +40,8 @@ function trimArchive(archiveFile, maxSize = 50, keepCount = 10) {
   }
 }
 
+
+//  fs.writeFileSync('response.html', response.data, 'utf8');
 module.exports = {
   readArchive,
   writeArchive,
