@@ -11,6 +11,13 @@ require('./bctc-dgc');
 require('./bctc-dhc');
 // require('./bctc-dnw');
 require('./bctc-dri');
+require('./bctc-geg');
+require('./bctc-ghc');
+require('./bctc-hhp');
+require('./bctc-hpg');
+require('./bctc-nnc');
+require('./bctc-pat');
+require('./bctc-ntc');
 
 // Thêm các file cronjob khác nếu có
 
