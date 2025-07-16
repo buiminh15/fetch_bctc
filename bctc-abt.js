@@ -42,11 +42,9 @@ async function fetchAndExtractData() {
         return false; // Break the loop after 10 elements
       }
     });
-    console.log('📢 [bctc-abt.js:47]', data);
     const newFinancialReports = await filterNewNames(data, COMPANIES.ABT);
-    console.log('📢 [bctc-abt.js:47]', newFinancialReports);
     if (newFinancialReports.length) {
-      const data = await insertBCTC(newFinancialReports, COMPANIES.ABT);
+      await insertBCTC(newFinancialReports, COMPANIES.ABT);
       await Promise.all(
         newFinancialReports.map(name =>
           sendTelegramNotification(`Báo cáo tài chính của Xuất nhập khẩu Thủy sản Bến Tre::: ${name}`)

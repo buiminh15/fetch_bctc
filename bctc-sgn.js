@@ -1,9 +1,8 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
-const { writeArchive, readArchive, trimArchive } = require('./readWriteUtils');
 const { sendTelegramNotification } = require('./bot');
-
-const archiveFile = 'sgn_data.json';
+const { COMPANIES } = require('./constants/companies');
+const { insertBCTC, filterNewNames } = require('./bctc');
 
 async function fetchAndExtractData() {
   try {
@@ -17,38 +16,44 @@ async function fetchAndExtractData() {
     const html = response.data;
     const $ = cheerio.load(html);
 
-    const data = [];
+    const names = [];
 
     $('#myPillContent .show.active div').each((index, element) => {
-      if (index < 5) { // Limit to the first 10 elements
+      if (index < 5) {
         const name = $(element).find('a.investor-link').text().trim();
-
-        // Lấy 8 ký tự đầu tiên làm date
         const date = name.substring(0, 8);
-
-        data.push({ date, name });
+        names.push(`${date}__${name}`);
       } else {
-        return false; // Break the loop after 10 elements
+        return false;
       }
     });
-    trimArchive(archiveFile);
 
-    const existingData = readArchive(archiveFile);
-    // Check if data[0] is already in the file
-    const isDuplicate = existingData.some(item => item.date === data[0].date && item.name === data[0].name);
+    if (names.length === 0) {
+      console.log('Không tìm thấy báo cáo tài chính nào.');
+      return;
+    }
 
-    if (!isDuplicate) {
-      existingData.push(data[0]);
-      writeArchive(existingData, archiveFile);
-      console.log('New data added:', data[0]);
-      await sendTelegramNotification(`Báo cáo tài chính của Phục vụ mặt đất Sài Gòn::: ${data[0].name}`);
+    // Lọc ra các báo cáo chưa có trong DB
+    const newNames = await filterNewNames(names, COMPANIES.SGN);
+
+    if (newNames.length) {
+      await insertBCTC(newNames, COMPANIES.SGN);
+
+      // Gửi thông báo Telegram cho từng báo cáo mới
+      await Promise.all(
+        newNames.map(name => {
+          const [date, ...rest] = name.split('__');
+          const realName = rest.join('__');
+          return sendTelegramNotification(`Báo cáo tài chính của Phục vụ mặt đất Sài Gòn (${date})::: ${realName}`);
+        })
+      );
+      console.log(`Đã thêm ${newNames.length} báo cáo mới và gửi thông báo.`);
     } else {
-      console.log('Data already exists:', data[0]);
+      console.log('Không có báo cáo mới.');
     }
   } catch (error) {
     console.error('Error fetching HTML:', error);
   }
 }
 
-// Call the function to fetch and extract data
 fetchAndExtractData();

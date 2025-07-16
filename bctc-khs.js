@@ -1,10 +1,9 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
-const { writeArchive, readArchive, trimArchive } = require('./readWriteUtils');
 const { sendTelegramNotification } = require('./bot');
 const he = require('he');
-
-const archiveFile = 'khs_data.json';
+const { COMPANIES } = require('./constants/companies');
+const { insertBCTC, filterNewNames } = require('./bctc');
 
 async function fetchAndExtractData() {
   try {
@@ -18,39 +17,46 @@ async function fetchAndExtractData() {
     const html = response.data;
     const $ = cheerio.load(html);
 
-    const data = [];
+    const names = [];
     $('.list-tin-tuc .tin-tuc').each((index, element) => {
-      if (index < 10) { // Limit to the first 10 elements
+      if (index < 5) {
         const dateRaw = $(element).find('.thoi-gian-tin').text().trim();
         const nameRaw = $(element).find('.mo-ta-tin').text().trim();
-        const name = he.decode(nameRaw); // Nếu muốn decode
+        const name = he.decode(nameRaw);
         const date = he.decode(dateRaw);
-        data.push({
-          date: date,
-          name: name // hoặc name nếu decode
-        });
+        // Ghép date và name để đảm bảo duy nhất
+        names.push(`${date}__${name}`);
       } else {
-        return false; // Break the loop
+        return false;
       }
     });
 
-    trimArchive(archiveFile);
+    if (names.length === 0) {
+      console.log('Không tìm thấy báo cáo tài chính nào.');
+      return;
+    }
 
-    const existingData = readArchive(archiveFile);
-    // Check if data[0] is already in the file
-    const isDuplicate = existingData.some(item => item.date === data[0].date && item.name === data[0].name);
+    // Lọc ra các báo cáo chưa có trong DB
+    const newNames = await filterNewNames(names, COMPANIES.KHS);
 
-    if (!isDuplicate) {
-      existingData.push(data[0]);
-      writeArchive(existingData, archiveFile);
-      await sendTelegramNotification(`Báo cáo tài chính của Công ty cổ phần Kiên Hùng::: ${data[0].name}`);
+    if (newNames.length) {
+      await insertBCTC(newNames, COMPANIES.KHS);
+
+      // Gửi thông báo Telegram cho từng báo cáo mới
+      await Promise.all(
+        newNames.map(name => {
+          const [date, ...rest] = name.split('__');
+          const realName = rest.join('__');
+          return sendTelegramNotification(`Báo cáo tài chính của Công ty cổ phần Kiên Hùng (${date})::: ${realName}`);
+        })
+      );
+      console.log(`Đã thêm ${newNames.length} báo cáo mới và gửi thông báo.`);
     } else {
-      console.log('Data already exists:', data[0]);
+      console.log('Không có báo cáo mới.');
     }
   } catch (error) {
     console.error('Error fetching HTML:', error);
   }
 }
 
-// Call the function to fetch and extract data
 fetchAndExtractData();

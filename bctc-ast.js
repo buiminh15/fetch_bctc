@@ -1,12 +1,12 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
-const { writeArchive, readArchive, trimArchive } = require('./readWriteUtils');
 const { sendTelegramNotification } = require('./bot');
-
-const archiveFile = 'ast_data.json';
+const { COMPANIES } = require('./constants/companies');
+const { insertBCTC, filterNewNames } = require('./bctc');
 
 async function fetchAndExtractData() {
   try {
+    // 1. Lấy trang danh sách báo cáo mới nhất
     const responsePage = await axios.get('https://tasecoairs.vn/bao-cao-tai-chinh.html', {
       headers: {
         'accept': 'text/html',
@@ -14,12 +14,15 @@ async function fetchAndExtractData() {
       }
     });
 
-    const htmlPage = responsePage.data;
-    const _$ = cheerio.load(htmlPage);
+    const _$ = cheerio.load(responsePage.data);
+    const firstElement = _$('.main_list_news > ul > li:first-child > .panel_img');
+    const href = firstElement.attr('href');
+    if (!href) {
+      console.log('Không tìm thấy link chi tiết báo cáo!');
+      return;
+    }
 
-    const element = _$('.main_list_news > ul > li:first-child > .panel_img');
-    const href = element.attr('href');
-
+    // 2. Lấy trang chi tiết báo cáo
     const response = await axios.get(href, {
       headers: {
         'accept': 'text/html',
@@ -27,42 +30,46 @@ async function fetchAndExtractData() {
       }
     });
 
-    const html = response.data;
-    const $ = cheerio.load(html);
-
-    const data = [];
-
+    const $ = cheerio.load(response.data);
+    // 3. Lấy danh sách tất cả các báo cáo tài chính mới nhất (có thể lấy nhiều hơn 1 nếu muốn)
+    const names = [];
     $('.table a').each((index, element) => {
       const url = $(element).attr('href');
       if (url) {
-        // Tách phần file name từ url
+        // Lấy tên file báo cáo (tuỳ cấu trúc url thực tế)
         const matches = url.match(/\/files\/(\d{8})/);
         const date = matches ? matches[1] : '';
-        data.push({
-          date: date,
-          name: url.split('-')[2]
-        });
+        const name = url.split('-')[2]; // Có thể điều chỉnh nếu không đúng
+        if (name) {
+          names.push(`${date}_${name}`); // Ghép để tăng tính duy nhất nếu cần
+        }
       }
     });
 
-    trimArchive(archiveFile);
+    if (names.length === 0) {
+      console.log('Không tìm thấy báo cáo tài chính nào.');
+      return;
+    }
 
-    const existingData = readArchive(archiveFile);
-    // Check if data[0] is already in the file
-    const isDuplicate = existingData.some(item => item.date === data[0].date && item.name === data[0].name);
+    // 4. Lọc ra danh sách báo cáo chưa có trong DB
+    const newNames = await filterNewNames(names, COMPANIES.AST);
 
-    if (!isDuplicate) {
-      existingData.push(data[0]);
-      writeArchive(existingData, archiveFile);
-      console.log('New data added:', data[0]);
-      await sendTelegramNotification(`Báo cáo tài chính của AST::: ${data[0].name}`);
+    if (newNames.length) {
+      await insertBCTC(newNames, COMPANIES.AST);
+
+      // Gửi Telegram cho từng báo cáo mới
+      await Promise.all(
+        newNames.map(name =>
+          sendTelegramNotification(`Báo cáo tài chính của AST::: ${name}`)
+        )
+      );
+      console.log(`Đã thêm ${newNames.length} báo cáo mới và gửi thông báo.`);
     } else {
-      console.log('Data already exists:', data[0]);
+      console.log('Không có báo cáo mới.');
     }
   } catch (error) {
     console.error('Error fetching HTML:', error);
   }
 }
 
-// Call the function to fetch and extract data
 fetchAndExtractData();

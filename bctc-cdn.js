@@ -1,9 +1,8 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
-const { writeArchive, readArchive, trimArchive } = require('./readWriteUtils');
 const { sendTelegramNotification } = require('./bot');
-
-const archiveFile = 'cdn_data.json';
+const { COMPANIES } = require('./constants/companies');
+const { insertBCTC, filterNewNames } = require('./bctc');
 
 async function fetchAndExtractData() {
   try {
@@ -17,37 +16,46 @@ async function fetchAndExtractData() {
     const html = response.data;
     const $ = cheerio.load(html);
 
-    const data = [];
-
+    // Lấy tối đa 5 báo cáo mới nhất
+    const names = [];
     $('tbody tr').each((index, element) => {
-      if (index < 5) { // Limit to the first 10 elements
+      if (index < 5) {
         const date = $(element).find('td').eq(0).text().trim();
         const name = $(element).find('td').eq(1).text().trim();
-
-        data.push({ date, name });
+        // Ghép date và name để tăng tính duy nhất, hoặc custom lại nếu bạn muốn
+        names.push(`${date}__${name}`);
       } else {
-        return false; // Break the loop after 10 elements
+        return false; // Break the loop
       }
     });
 
-    trimArchive(archiveFile);
+    if (names.length === 0) {
+      console.log('Không tìm thấy báo cáo tài chính nào.');
+      return;
+    }
 
-    const existingData = readArchive(archiveFile);
-    // Check if data[0] is already in the file
-    const isDuplicate = existingData.some(item => item.date === data[0].date && item.name === data[0].name);
+    // Lọc ra các báo cáo chưa có trong DB
+    const newNames = await filterNewNames(names, COMPANIES.CDN);
 
-    if (!isDuplicate) {
-      existingData.push(data[0]);
-      writeArchive(existingData, archiveFile);
-      console.log('New data added:', data[0]);
-      await sendTelegramNotification(`Báo cáo tài chính của Cảng Đà Nẵng::: ${data[0].name}`);
+    if (newNames.length) {
+      await insertBCTC(newNames, COMPANIES.CDN);
+
+      // Gửi thông báo Telegram cho từng báo cáo mới
+      await Promise.all(
+        newNames.map(name => {
+          // Tách lại date và name để hiển thị đẹp
+          const [date, ...rest] = name.split('__');
+          const realName = rest.join('__');
+          return sendTelegramNotification(`Báo cáo tài chính của Cảng Đà Nẵng (${date})::: ${realName}`);
+        })
+      );
+      console.log(`Đã thêm ${newNames.length} báo cáo mới và gửi thông báo.`);
     } else {
-      console.log('Data already exists:', data[0]);
+      console.log('Không có báo cáo mới.');
     }
   } catch (error) {
     console.error('Error fetching HTML:', error);
   }
 }
 
-// Call the function to fetch and extract data
 fetchAndExtractData();
