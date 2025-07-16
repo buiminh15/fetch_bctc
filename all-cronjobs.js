@@ -18,6 +18,8 @@ require('./bctc-hpg');
 require('./bctc-nnc');
 require('./bctc-pat');
 require('./bctc-ntc');
+require('./bctc-pph');
+require('./bctc-pvp');
 
 // Thêm các file cronjob khác nếu có
 
