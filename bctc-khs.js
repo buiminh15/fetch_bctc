@@ -20,12 +20,10 @@ async function fetchAndExtractData() {
     const names = [];
     $('.list-tin-tuc .tin-tuc').each((index, element) => {
       if (index < 5) {
-        const dateRaw = $(element).find('.thoi-gian-tin').text().trim();
         const nameRaw = $(element).find('.mo-ta-tin').text().trim();
         const name = he.decode(nameRaw);
-        const date = he.decode(dateRaw);
         // Ghép date và name để đảm bảo duy nhất
-        names.push(`${date}__${name}`);
+        names.push(`${name}`);
       } else {
         return false;
       }
@@ -45,9 +43,7 @@ async function fetchAndExtractData() {
       // Gửi thông báo Telegram cho từng báo cáo mới
       await Promise.all(
         newNames.map(name => {
-          const [date, ...rest] = name.split('__');
-          const realName = rest.join('__');
-          return sendTelegramNotification(`Báo cáo tài chính của Công ty cổ phần Kiên Hùng (${date})::: ${realName}`);
+          return sendTelegramNotification(`Báo cáo tài chính của Công ty cổ phần Kiên Hùng ::: ${name}`);
         })
       );
       console.log(`Đã thêm ${newNames.length} báo cáo mới và gửi thông báo.`);
