@@ -1,11 +1,9 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
 const { sendTelegramNotification } = require('./bot');
+const he = require('he');
 const { COMPANIES } = require('./constants/companies');
 const { insertBCTC, filterNewNames } = require('./bctc');
-
-console.log('📢 [bctc-cdn.js:7]', 'running');
-
 const axiosRetry = require('axios-retry');
 
 axiosRetry.default(axios, {
@@ -16,10 +14,9 @@ axiosRetry.default(axios, {
     return axiosRetry.isNetworkOrIdempotentRequestError(error) || error.code === 'ECONNABORTED';
   }
 });
-
 async function fetchAndExtractData() {
   try {
-    const response = await axios.get('https://danangport.com/bao-cao-dinh-ky-bat-thuong/', {
+    const response = await axios.get('https://www.shb.com.vn/category/nha-dau-tu/bao-cao-tai-chinh/', {
       headers: {
         'accept': 'text/html',
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
@@ -29,38 +26,36 @@ async function fetchAndExtractData() {
 
     const html = response.data;
     const $ = cheerio.load(html);
-
-    // Lấy tối đa 5 báo cáo mới nhất
+    const currentYear = new Date().getFullYear();
     const names = [];
-    $('tbody tr').each((index, element) => {
+    $('.title').each((index, element) => {
       if (index < 5) {
-        const date = $(element).find('td').eq(0).text().trim();
-        const name = $(element).find('td').eq(1).text().trim();
-        // Ghép date và name để tăng tính duy nhất, hoặc custom lại nếu bạn muốn
-        names.push(`${date}__${name}`);
+        const nameRaw = $(element).text().trim();
+        const name = he.decode(nameRaw);
+        if (name.includes(`năm ${currentYear}`)) {
+          // Ghép date và name để đảm bảo duy nhất
+          names.push(`${name}`);
+        }
       } else {
-        return false; // Break the loop
+        return false;
       }
     });
-
+    console.log('📢 [bctc-shb.js:36]', names);
     if (names.length === 0) {
       console.log('Không tìm thấy báo cáo tài chính nào.');
       return;
     }
 
     // Lọc ra các báo cáo chưa có trong DB
-    const newNames = await filterNewNames(names, COMPANIES.CDN);
-    console.log('📢 [bctc-cdn.js:46]', newNames);
+    const newNames = await filterNewNames(names, COMPANIES.SHB);
+    console.log('📢 [bctc-khs.js:42]', newNames);
     if (newNames.length) {
-      await insertBCTC(newNames, COMPANIES.CDN);
+      await insertBCTC(newNames, COMPANIES.SHB);
 
       // Gửi thông báo Telegram cho từng báo cáo mới
       await Promise.all(
         newNames.map(name => {
-          // Tách lại date và name để hiển thị đẹp
-          const [date, ...rest] = name.split('__');
-          const realName = rest.join('__');
-          return sendTelegramNotification(`Báo cáo tài chính của Cảng Đà Nẵng (${date})::: ${realName}`);
+          return sendTelegramNotification(`Báo cáo tài chính của Ngân Hàng SHB ::: ${name}`);
         })
       );
       console.log(`Đã thêm ${newNames.length} báo cáo mới và gửi thông báo.`);
@@ -69,8 +64,9 @@ async function fetchAndExtractData() {
     }
   } catch (error) {
     console.error('Error fetching HTML:', error);
+
     process.exit(1);
   }
 }
-
+console.log('📢 [bctc-khs.js:57]', 'running');
 fetchAndExtractData();

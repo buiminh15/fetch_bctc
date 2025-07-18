@@ -8,7 +8,14 @@ console.log('📢 [bctc-dgc.js:7]', 'running');
 
 const axiosRetry = require('axios-retry');
 
-axiosRetry.default(axios, { retries: 3, retryDelay: axiosRetry.exponentialDelay });
+axiosRetry.default(axios, {
+  retries: 3,
+  retryDelay: axiosRetry.exponentialDelay,
+  retryCondition: (error) => {
+    // Retry nếu là network error, request idempotent, hoặc timeout
+    return axiosRetry.isNetworkOrIdempotentRequestError(error) || error.code === 'ECONNABORTED';
+  }
+});
 
 async function fetchAndExtractData() {
   try {

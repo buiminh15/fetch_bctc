@@ -5,7 +5,14 @@ const { COMPANIES } = require('./constants/companies');
 const { insertBCTC, filterNewNames } = require('./bctc');
 const axiosRetry = require('axios-retry');
 
-axiosRetry.default(axios, { retries: 3, retryDelay: axiosRetry.exponentialDelay });
+axiosRetry.default(axios, {
+  retries: 3,
+  retryDelay: axiosRetry.exponentialDelay,
+  retryCondition: (error) => {
+    // Retry nếu là network error, request idempotent, hoặc timeout
+    return axiosRetry.isNetworkOrIdempotentRequestError(error) || error.code === 'ECONNABORTED';
+  }
+});
 console.log('📢 [bctc-bsr.js:7]', 'running');
 async function fetchAndExtractData() {
   try {

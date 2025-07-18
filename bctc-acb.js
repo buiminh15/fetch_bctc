@@ -8,7 +8,14 @@ const PAGES = [3, 2, 1]; // Các trang cần kiểm tra, theo thứ tự ưu ti�
 
 const axiosRetry = require('axios-retry');
 
-axiosRetry.default(axios, { retries: 3, retryDelay: axiosRetry.exponentialDelay });
+axiosRetry.default(axios, {
+  retries: 3,
+  retryDelay: axiosRetry.exponentialDelay,
+  retryCondition: (error) => {
+    // Retry nếu là network error, request idempotent, hoặc timeout
+    return axiosRetry.isNetworkOrIdempotentRequestError(error) || error.code === 'ECONNABORTED';
+  }
+});
 
 console.log('📢 [bctc-acb.js:8]', 'running');
 async function fetchAndExtractData() {

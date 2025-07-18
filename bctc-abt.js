@@ -12,7 +12,14 @@ const client = wrapper(axios.create({ jar: cookieJar, withCredentials: true }));
 
 const axiosRetry = require('axios-retry');
 
-axiosRetry.default(axios, { retries: 3, retryDelay: axiosRetry.exponentialDelay });
+axiosRetry.default(axios, {
+  retries: 3,
+  retryDelay: axiosRetry.exponentialDelay,
+  retryCondition: (error) => {
+    // Retry nếu là network error, request idempotent, hoặc timeout
+    return axiosRetry.isNetworkOrIdempotentRequestError(error) || error.code === 'ECONNABORTED';
+  }
+});
 
 // const archiveFile = 'abt_data.json';
 console.log('📢 [bctc-abt.js:14]');
