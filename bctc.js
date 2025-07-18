@@ -40,21 +40,6 @@ async function readBCTC() {
   return data;
 }
 
-async function checkDuplicate(name, company) {
-  const { data, error } = await supabase
-    .from('bctc')
-    .select('*')
-    .eq('name', name)
-    .eq('company', company);
-
-  if (error) {
-    console.error('Check duplicate error:', error.message);
-    return false;
-  }
-  // Nếu data có ít nhất 1 phần tử => đã có bản ghi trùng
-  return data && data.length > 0;
-}
-
 async function filterNewNames(names, company) {
   if (!names || names.length === 0) return [];
 
@@ -81,6 +66,5 @@ async function filterNewNames(names, company) {
 module.exports = {
   insertBCTC,
   readBCTC,
-  checkDuplicate,
   filterNewNames
 };
