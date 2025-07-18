@@ -1,4 +1,4 @@
-// require('./bctc-abt');
+require('./bctc-abt');
 require('./bctc-acb');
 require('./bctc-ast');
 require('./bctc-bsr');
@@ -6,7 +6,7 @@ require('./bctc-cdn');
 require('./bctc-dcm');
 require('./bctc-dgc');
 require('./bctc-dhc');
-// require('./bctc-dnw');
+require('./bctc-dnw');
 require('./bctc-dri');
 require('./bctc-geg');
 require('./bctc-ghc');
