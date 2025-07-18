@@ -69,7 +69,9 @@ async function fetchAndExtractData() {
       console.log('Không có báo cáo mới.');
     }
   } catch (error) {
+
     console.error('Error fetching HTML:', error);
+    process.exit(1);
   }
 }
 

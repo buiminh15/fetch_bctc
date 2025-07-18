@@ -52,8 +52,10 @@ async function fetchAndExtractData() {
   } catch (error) {
     if (error.response) {
       console.error('Lỗi từ API:', error.response.status, error.response.data);
+      process.exit(1);
     } else {
       console.error('Lỗi khi fetch dữ liệu:', error.message);
+      process.exit(1);
     }
   }
 }

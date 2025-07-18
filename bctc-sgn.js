@@ -21,8 +21,7 @@ async function fetchAndExtractData() {
     $('#myPillContent .show.active div').each((index, element) => {
       if (index < 5) {
         const name = $(element).find('a.investor-link').text().trim();
-        const date = name.substring(0, 8);
-        names.push(`${date}__${name}`);
+        names.push(`${name}`);
       } else {
         return false;
       }
@@ -42,9 +41,7 @@ async function fetchAndExtractData() {
       // Gửi thông báo Telegram cho từng báo cáo mới
       await Promise.all(
         newNames.map(name => {
-          const [date, ...rest] = name.split('__');
-          const realName = rest.join('__');
-          return sendTelegramNotification(`Báo cáo tài chính của Phục vụ mặt đất Sài Gòn (${date})::: ${realName}`);
+          return sendTelegramNotification(`Báo cáo tài chính của Phục vụ mặt đất Sài Gòn :::  ${name}`);
         })
       );
       console.log(`Đã thêm ${newNames.length} báo cáo mới và gửi thông báo.`);
@@ -53,6 +50,7 @@ async function fetchAndExtractData() {
     }
   } catch (error) {
     console.error('Error fetching HTML:', error);
+    process.exit(1);
   }
 }
 console.log('📢 [bctc-sgn.js:58]', 'running');

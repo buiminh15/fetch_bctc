@@ -66,6 +66,7 @@ async function fetchAndExtractData() {
     }
   } catch (error) {
     console.error('Error fetching API:', error.message);
+    process.exit(1);
   }
 }
 

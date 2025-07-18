@@ -94,6 +94,7 @@ async function fetchAndExtractPublicInfo() {
     }
   } catch (error) {
     console.error('Error fetching HTML:', error);
+    process.exit(1);
   }
 }
 

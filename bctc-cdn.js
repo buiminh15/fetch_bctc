@@ -56,6 +56,7 @@ async function fetchAndExtractData() {
     }
   } catch (error) {
     console.error('Error fetching HTML:', error);
+    process.exit(1);
   }
 }
 
