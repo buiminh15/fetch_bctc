@@ -5,13 +5,19 @@ const { COMPANIES } = require('./constants/companies');
 const { insertBCTC, filterNewNames } = require('./bctc');
 
 console.log('📢 [bctc-dcm.js:7]', 'running');
+
+const axiosRetry = require('axios-retry');
+
+axiosRetry(axios, { retries: 3, retryDelay: axiosRetry.exponentialDelay });
+
 async function fetchAndExtractData() {
   try {
     const response = await axios.get('https://www.pvcfc.com.vn/quan-he-dau-tu/bao-cao-tai-chinh/2025-bctc', {
       headers: {
         'accept': 'text/html',
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
-      }
+      },
+      timeout: 60000
     });
 
     const html = response.data;
@@ -31,7 +37,7 @@ async function fetchAndExtractData() {
 
     // Lọc ra các báo cáo chưa có trong DB
     const newNames = await filterNewNames(names, COMPANIES.DCM);
-
+    console.log('📢 [bctc-dcm.js:34]', newNames);
     if (newNames.length) {
       await insertBCTC(newNames, COMPANIES.DCM);
 
@@ -57,7 +63,8 @@ async function fetchAndExtractPublicInfo() {
       headers: {
         'accept': 'text/html',
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
-      }
+      },
+      timeout: 60000
     });
 
     const html = response.data;
@@ -78,7 +85,7 @@ async function fetchAndExtractPublicInfo() {
 
     // Lọc ra các báo cáo chưa có trong DB
     const newNames = await filterNewNames(names, COMPANIES.DCM);
-
+    console.log('📢 [bctc-dcm.js:88]', newNames);
     if (newNames.length) {
       await insertBCTC(newNames, COMPANIES.DCM);
 

@@ -4,13 +4,18 @@ const { sendTelegramNotification } = require('./bot');
 const { COMPANIES } = require('./constants/companies');
 const { insertBCTC, filterNewNames } = require('./bctc');
 
+const axiosRetry = require('axios-retry');
+
+axiosRetry(axios, { retries: 3, retryDelay: axiosRetry.exponentialDelay });
+
 async function fetchAndExtractData() {
   try {
     const response = await axios.get('https://sags.vn/announcements.html', {
       headers: {
         'accept': 'text/html',
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
-      }
+      },
+      timeout: 60000
     });
 
     const html = response.data;
@@ -34,7 +39,7 @@ async function fetchAndExtractData() {
 
     // Lọc ra các báo cáo chưa có trong DB
     const newNames = await filterNewNames(names, COMPANIES.SGN);
-
+    console.log('📢 [bctc-sgn.js:42]', newNames);
     if (newNames.length) {
       await insertBCTC(newNames, COMPANIES.SGN);
 

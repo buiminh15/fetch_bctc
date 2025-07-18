@@ -10,6 +10,10 @@ const tough = require('tough-cookie');
 const cookieJar = new tough.CookieJar();
 const client = wrapper(axios.create({ jar: cookieJar, withCredentials: true }));
 
+const axiosRetry = require('axios-retry');
+
+axiosRetry(axios, { retries: 3, retryDelay: axiosRetry.exponentialDelay });
+
 // const archiveFile = 'abt_data.json';
 console.log('📢 [bctc-abt.js:14]');
 async function fetchAndExtractData() {
@@ -24,8 +28,10 @@ async function fetchAndExtractData() {
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
         'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
         'referer': 'https://aquatexbentre.com/',
+
         // Có thể bổ sung các header khác nếu server kiểm tra kỹ hơn
-      }
+      },
+      timeout: 60000
       // cookieJar sẽ tự động đính kèm cookies đã được cấp phát trước đó
     });
 

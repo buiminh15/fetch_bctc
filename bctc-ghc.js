@@ -3,6 +3,12 @@ const { sendTelegramNotification } = require('./bot');
 const { COMPANIES } = require('./constants/companies');
 const { insertBCTC, filterNewNames } = require('./bctc');
 console.log('📢 [bctc-ghc.js:5]', 'running');
+
+const axiosRetry = require('axios-retry');
+
+axiosRetry(axios, { retries: 3, retryDelay: axiosRetry.exponentialDelay });
+
+
 async function fetchAndExtractData() {
   try {
     const response = await axios.post(
@@ -33,6 +39,7 @@ async function fetchAndExtractData() {
           // Cookie truyền vào header, dạng string
           'Cookie': 'language=vi-vn; BNES_language=KnsJ7JWpVje71xG5RvqdUcsw1hi2BTHzJuwCm3DMvx2kGzPlVKbOW0SfgLca93n3EgKOfvPlWkE='
         }
+        , timeout: 60000
       }
     );
 
@@ -50,7 +57,7 @@ async function fetchAndExtractData() {
 
     // Lọc ra các báo cáo chưa có trong DB
     const newNames = await filterNewNames(names, COMPANIES.GHC);
-
+    console.log('📢 [bctc-ghc.js:60]', newNames);
     if (newNames.length) {
       await insertBCTC(newNames, COMPANIES.GHC);
 

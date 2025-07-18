@@ -3,6 +3,11 @@ const { sendTelegramNotification } = require('./bot');
 const { COMPANIES } = require('./constants/companies');
 const { insertBCTC, filterNewNames } = require('./bctc');
 console.log('📢 [bctc-geg.js:5]', 'running');
+
+const axiosRetry = require('axios-retry');
+
+axiosRetry(axios, { retries: 3, retryDelay: axiosRetry.exponentialDelay });
+
 async function fetchAndExtractData() {
   try {
     const response = await axios.get(
@@ -26,7 +31,8 @@ async function fetchAndExtractData() {
           'sec-ch-ua': '"Not)A;Brand";v="8", "Chromium";v="138", "Brave";v="138"',
           'sec-ch-ua-mobile': '?0',
           'sec-ch-ua-platform': '"Windows"'
-        }
+        },
+        timeout: 60000
       }
     );
 
@@ -41,7 +47,7 @@ async function fetchAndExtractData() {
 
     // Lọc ra các báo cáo chưa có trong DB
     const newNames = await filterNewNames(names, COMPANIES.GEG);
-
+    console.log('📢 [bctc-geg.js:44]', newNames);
     if (newNames.length) {
       await insertBCTC(newNames, COMPANIES.GEG);
 

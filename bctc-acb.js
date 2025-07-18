@@ -5,6 +5,11 @@ const { insertBCTC, filterNewNames } = require('./bctc');
 
 const YEAR_ID = 1541; // ID danh mục cho năm, cần cập nhật nếu thay đổi
 const PAGES = [3, 2, 1]; // Các trang cần kiểm tra, theo thứ tự ưu tiên
+
+const axiosRetry = require('axios-retry');
+
+axiosRetry(axios, { retries: 3, retryDelay: axiosRetry.exponentialDelay });
+
 console.log('📢 [bctc-acb.js:8]', 'running');
 async function fetchAndExtractData() {
   try {
@@ -19,7 +24,8 @@ async function fetchAndExtractData() {
           headers: {
             'accept': 'application/json',
             'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
-          }
+          },
+          timeout: 60000,
         }
       );
 
@@ -35,7 +41,7 @@ async function fetchAndExtractData() {
 
     // Lọc tên báo cáo chưa có trong DB
     const newNames = await filterNewNames(allNames, COMPANIES.ACB);
-
+    console.log('📢 [bctc-acb.js:44]', newNames);
     if (newNames.length) {
       await insertBCTC(newNames, COMPANIES.ACB);
 
