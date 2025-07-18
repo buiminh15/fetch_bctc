@@ -4,6 +4,32 @@ on:
       - main
   workflow_dispatch:
 
+  schedule:
+    # LƯU Ý: Toàn bộ thời gian được tính theo múi giờ UTC.
+    # UTC nhanh hơn giờ Việt Nam (UTC+7) 7 tiếng.
+    # Ví dụ: 00:00 UTC là 07:00 sáng tại Việt Nam.
+
+    # Chạy mỗi 2 giờ, từ ngày 10 đến 30 tháng 4
+    - cron: "0 */1 10-30 4 *"
+
+    # Chạy mỗi 2 giờ, trong suốt tháng 5
+    - cron: "0 */1 * 5 *"
+
+    # Chạy mỗi 2 giờ, từ ngày 10 đến 31 tháng 7
+    - cron: "0 */1 10-31 7 *"
+
+    # Chạy mỗi 2 giờ, từ ngày 10 đến 31 tháng 10
+    - cron: "0 */1 10-31 10 *"
+
+    # Chạy mỗi 2 giờ, trong suốt tháng 1
+    - cron: "0 */1 * 1 *"
+
+    # Chạy mỗi 2 giờ, trong suốt tháng 2
+    - cron: "0 */1 * 2 *"
+
+    # Chạy mỗi 2 giờ, trong suốt tháng 3
+    - cron: "0 */1 * 3 *"
+
 jobs:
   run-each-script:
     runs-on: ubuntu-latest
