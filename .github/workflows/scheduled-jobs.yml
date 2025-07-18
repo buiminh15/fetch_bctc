@@ -12,7 +12,27 @@ jobs:
       matrix:
         script:
           - bctc-abt.js
-          # ...các script khác...
+          - bctc-acb.js
+          - bctc-ast.js
+          - bctc-bsr.js
+          - bctc-cdn.js
+          - bctc-dcm.js
+          - bctc-dgc.js
+          - bctc-dhc.js
+          - bctc-dnw.js
+          - bctc-dri.js
+          - bctc-geg.js
+          - bctc-ghc.js
+          - bctc-hhp.js
+          - bctc-hpg.js
+          - bctc-khs.js
+          - bctc-ncs.js
+          - bctc-nnc.js
+          - bctc-ntc.js
+          - bctc-pat.js
+          - bctc-pph.js
+          - bctc-pvp.js
+          - bctc-sgn.js
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
