@@ -20,6 +20,7 @@ require('./bctc-pat');
 require('./bctc-pph');
 require('./bctc-pvp');
 require('./bctc-sgn');
+require('./bctc-sas');
 
 // Thêm các file cronjob khác nếu có
 

@@ -6,7 +6,7 @@ console.log('📢 [bctc-geg.js:5]', 'running');
 
 const axiosRetry = require('axios-retry');
 
-axiosRetry(axios, { retries: 3, retryDelay: axiosRetry.exponentialDelay });
+axiosRetry.default(axios, { retries: 3, retryDelay: axiosRetry.exponentialDelay });
 
 async function fetchAndExtractData() {
   try {

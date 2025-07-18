@@ -12,7 +12,7 @@ const client = wrapper(axios.create({ jar: cookieJar, withCredentials: true }));
 
 const axiosRetry = require('axios-retry');
 
-axiosRetry(axios, { retries: 3, retryDelay: axiosRetry.exponentialDelay });
+axiosRetry.default(axios, { retries: 3, retryDelay: axiosRetry.exponentialDelay });
 
 // const archiveFile = 'abt_data.json';
 console.log('📢 [bctc-abt.js:14]');

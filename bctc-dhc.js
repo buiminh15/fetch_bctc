@@ -6,7 +6,7 @@ const { insertBCTC, filterNewNames } = require('./bctc');
 
 const axiosRetry = require('axios-retry');
 
-axiosRetry(axios, { retries: 3, retryDelay: axiosRetry.exponentialDelay });
+axiosRetry.default(axios, { retries: 3, retryDelay: axiosRetry.exponentialDelay });
 
 console.log('📢 [bctc-dhc.js:7]', 'running');
 async function fetchAndExtractData() {

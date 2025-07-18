@@ -60,6 +60,7 @@ jobs:
           - bctc-pph.js
           - bctc-pvp.js
           - bctc-sgn.js
+          - bctc-sas.js
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
