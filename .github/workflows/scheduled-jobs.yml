@@ -1,32 +1,18 @@
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
 jobs:
   run-each-script:
     runs-on: ubuntu-latest
     strategy:
-      max-parallel: 3 # <== CHỈNH SỐ NÀY TÙY Ý (3-5 là hợp lý)
+      max-parallel: 3
       matrix:
         script:
           - bctc-abt.js
-          - bctc-acb.js
-          - bctc-ast.js
-          - bctc-bsr.js
-          - bctc-cdn.js
-          - bctc-dcm.js
-          - bctc-dgc.js
-          - bctc-dhc.js
-          - bctc-dnw.js
-          - bctc-dri.js
-          - bctc-geg.js
-          - bctc-ghc.js
-          - bctc-hhp.js
-          - bctc-hpg.js
-          - bctc-khs.js
-          - bctc-ncs.js
-          - bctc-nnc.js
-          - bctc-ntc.js
-          - bctc-pat.js
-          - bctc-pph.js
-          - bctc-pvp.js
-          - bctc-sgn.js
+          # ...các script khác...
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
