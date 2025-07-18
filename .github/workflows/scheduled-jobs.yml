@@ -9,6 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 3
+      fail-fast: false
       matrix:
         script:
           - bctc-abt.js
