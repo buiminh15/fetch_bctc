@@ -4,6 +4,7 @@ const { sendTelegramNotification } = require('./bot');
 const { COMPANIES } = require('./constants/companies');
 const { insertBCTC, filterNewNames } = require('./bctc');
 
+console.log('📢 [bctc-ast.js:7]', 'running');
 async function fetchAndExtractData() {
   try {
     // 1. Lấy trang danh sách báo cáo mới nhất

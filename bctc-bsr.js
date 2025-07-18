@@ -4,6 +4,7 @@ const { sendTelegramNotification } = require('./bot');
 const { COMPANIES } = require('./constants/companies');
 const { insertBCTC, filterNewNames } = require('./bctc');
 
+console.log('📢 [bctc-bsr.js:7]', 'running');
 async function fetchAndExtractData() {
   try {
     const response = await axios.get('https://bsr.com.vn/bao-cao-tai-chinh', {

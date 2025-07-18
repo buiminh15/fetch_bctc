@@ -4,6 +4,7 @@ const { sendTelegramNotification } = require('./bot');
 const { COMPANIES } = require('./constants/companies');
 const { insertBCTC, filterNewNames } = require('./bctc');
 
+console.log('📢 [bctc-cdn.js:7]', 'running');
 async function fetchAndExtractData() {
   try {
     const response = await axios.get('https://danangport.com/bao-cao-dinh-ky-bat-thuong/', {

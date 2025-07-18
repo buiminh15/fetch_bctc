@@ -2,7 +2,7 @@ const axios = require('axios');
 const { sendTelegramNotification } = require('./bot');
 const { COMPANIES } = require('./constants/companies');
 const { insertBCTC, filterNewNames } = require('./bctc');
-
+console.log('📢 [bctc-geg.js:5]', 'running');
 async function fetchAndExtractData() {
   try {
     const response = await axios.get(

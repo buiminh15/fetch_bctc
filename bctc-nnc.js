@@ -50,5 +50,5 @@ async function fetchAndExtractData() {
     console.error('Error fetching HTML:', error);
   }
 }
-
+console.log('📢 [bctc-nnc.js:53]', 'running');
 fetchAndExtractData();

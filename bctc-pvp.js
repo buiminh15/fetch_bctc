@@ -55,5 +55,5 @@ async function fetchAndExtractData() {
     console.error('Error fetching HTML:', error);
   }
 }
-
+console.log('📢 [bctc-pvp.js:58]', 'running');
 fetchAndExtractData();

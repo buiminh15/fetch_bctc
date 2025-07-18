@@ -11,7 +11,7 @@ const cookieJar = new tough.CookieJar();
 const client = wrapper(axios.create({ jar: cookieJar, withCredentials: true }));
 
 // const archiveFile = 'abt_data.json';
-
+console.log('📢 [bctc-abt.js:14]');
 async function fetchAndExtractData() {
   try {
     await cookieJar.setCookie('client_30s=0.5206551040853635', 'https://aquatexbentre.com');

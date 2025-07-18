@@ -49,5 +49,5 @@ async function fetchAndExtractData() {
     console.error('Error fetching HTML:', error);
   }
 }
-
+console.log('📢 [bctc-pat.js:52]', 'running');
 fetchAndExtractData();

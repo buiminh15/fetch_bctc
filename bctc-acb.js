@@ -5,7 +5,7 @@ const { insertBCTC, filterNewNames } = require('./bctc');
 
 const YEAR_ID = 1541; // ID danh mục cho năm, cần cập nhật nếu thay đổi
 const PAGES = [3, 2, 1]; // Các trang cần kiểm tra, theo thứ tự ưu tiên
-
+console.log('📢 [bctc-acb.js:8]', 'running');
 async function fetchAndExtractData() {
   try {
     let allNames = [];

@@ -3,7 +3,7 @@ const cheerio = require('cheerio');
 const { sendTelegramNotification } = require('./bot');
 const { COMPANIES } = require('./constants/companies');
 const { insertBCTC, filterNewNames } = require('./bctc');
-
+console.log('📢 [bctc-dri.js:6]', 'running');
 async function fetchAndExtractData() {
   try {
     const response = await axios.get('https://dri.com.vn/index.php/codong/tttc/52-tttcnam2025', {

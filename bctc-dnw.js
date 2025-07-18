@@ -10,7 +10,7 @@ const tough = require('tough-cookie');
 // Tạo một cookie jar (bộ nhớ cookies)
 const cookieJar = new tough.CookieJar();
 const client = wrapper(axios.create({ jar: cookieJar, withCredentials: true }));
-
+console.log('📢 [bctc-dnw.js:13]', 'running');
 async function fetchAndExtractData() {
   try {
     await cookieJar.setCookie(

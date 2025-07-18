@@ -53,5 +53,5 @@ async function fetchAndExtractData() {
     console.error('Error fetching HTML:', error);
   }
 }
-
+console.log('📢 [bctc-hhp.js:56]', 'running');
 fetchAndExtractData();

@@ -4,6 +4,7 @@ const { sendTelegramNotification } = require('./bot');
 const { COMPANIES } = require('./constants/companies');
 const { insertBCTC, filterNewNames } = require('./bctc');
 
+console.log('📢 [bctc-dcm.js:7]', 'running');
 async function fetchAndExtractData() {
   try {
     const response = await axios.get('https://www.pvcfc.com.vn/quan-he-dau-tu/bao-cao-tai-chinh/2025-bctc', {

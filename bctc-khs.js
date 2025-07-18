@@ -54,5 +54,5 @@ async function fetchAndExtractData() {
     console.error('Error fetching HTML:', error);
   }
 }
-
+console.log('📢 [bctc-khs.js:57]', 'running');
 fetchAndExtractData();
