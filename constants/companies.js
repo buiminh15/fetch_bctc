@@ -34,7 +34,9 @@ const COMPANIES = {
   VSC: 'VSC',
   MBB: 'MBB',
   ANV: 'ANV',
-  PHP: 'PHP'
+  PHP: 'PHP',
+  TNC: 'TNC',
+  FMC: 'FMC',
 };
 
 export { COMPANIES };
