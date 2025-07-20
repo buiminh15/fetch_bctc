@@ -39,7 +39,7 @@ async function fetchAndExtractData() {
 
     const $ = cheerio.load(html);
     const data = [];
-    const currentYear = new Date().getFullYear().toLocaleString();
+    const currentYear = new Date().getFullYear().toString();
     $('.accordion > .accordion-item:first-child .ux-menu-link__link').each((_, element) => {
       const name = $(element).text().trim();
       const filterCondition = ['báo cáo tài chính', currentYear];

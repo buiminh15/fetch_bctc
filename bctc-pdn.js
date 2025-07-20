@@ -1,7 +1,7 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
 const { sendTelegramNotification } = require('./bot');
-const { COMPANIES, CAFEF_API } = require('./constants/companies');
+const { COMPANIES } = require('./constants/companies');
 const { insertBCTC, filterNewNames } = require('./bctc');
 const he = require('he');
 console.log('📢 [bctc-cdn.js:7]', 'running');
@@ -19,7 +19,7 @@ axiosRetry.default(axios, {
 
 async function fetchAndExtractData() {
   try {
-    const response = await axios.get(`${CAFEF_API}${COMPANIES.ANV}`, {
+    const response = await axios.get('http://dongnai-port.com/Pages/bao-cao-tai-chinh-qua-cac-nam.aspx', {
       headers: {
         'accept': 'text/html',
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
@@ -32,16 +32,14 @@ async function fetchAndExtractData() {
     const currentYear = new Date().getFullYear().toString();
     // Lấy tối đa 5 báo cáo mới nhất
     const names = [];
-    $('.treeview table td').each((index, element) => {
+    $('td a').each((_, element) => {
       const nameRaw = $(element).text().trim();
       const name = he.decode(nameRaw);
-      if (index < 10) {
-        const filterCondition = [currentYear, 'báo cáo tài chính'];
-        if (filterCondition.every(y => name.trim().toLocaleLowerCase().includes(y))) {
-          names.push(`${name}`);
-        }
-      }
 
+      const filterCondition = [currentYear, 'báo cáo tài chính'];
+      if (filterCondition.every(y => name.trim().toLocaleLowerCase().includes(y))) {
+        names.push(`${name}`);
+      }
     });
 
     if (names.length === 0) {
@@ -50,15 +48,15 @@ async function fetchAndExtractData() {
     }
     console.log('📢 [bctc-mbs.js:50]', names);
     // Lọc ra các báo cáo chưa có trong DB
-    const newNames = await filterNewNames(names, COMPANIES.ANV);
+    const newNames = await filterNewNames(names, COMPANIES.PDN);
     console.log('📢 [bctc-cdn.js:46]', newNames);
     if (newNames.length) {
-      await insertBCTC(newNames, COMPANIES.ANV);
+      await insertBCTC(newNames, COMPANIES.PDN);
 
       // Gửi thông báo Telegram cho từng báo cáo mới
       await Promise.all(
         newNames.map(name => {
-          return sendTelegramNotification(`Báo cáo tài chính của ANV ::: ${name}`);
+          return sendTelegramNotification(`Báo cáo tài chính của PDN ::: ${name}`);
         })
       );
       console.log(`Đã thêm ${newNames.length} báo cáo mới và gửi thông báo.`);

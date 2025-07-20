@@ -1,10 +1,12 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
 const { sendTelegramNotification } = require('./bot');
-const { COMPANIES } = require('./constants/companies');
+const { COMPANIES, CAFEF_API } = require('./constants/companies');
 const { insertBCTC, filterNewNames } = require('./bctc');
-const axiosRetry = require('axios-retry');
 const he = require('he');
+console.log('📢 [bctc-cdn.js:7]', 'running');
+
+const axiosRetry = require('axios-retry');
 
 axiosRetry.default(axios, {
   retries: 3,
@@ -14,66 +16,59 @@ axiosRetry.default(axios, {
     return axiosRetry.isNetworkOrIdempotentRequestError(error) || error.code === 'ECONNABORTED';
   }
 });
-console.log('📢 [bctc-bsr.js:7]', 'running');
-async function fetchAndExtractDataFromAPI() {
+
+async function fetchAndExtractData() {
   try {
-    const url = 'https://ezsearch.fpts.com.vn/Services/EzData/ProcessLoadRuntime.aspx?s=401&cGroup=News&cPath=Services/EzData/CompanyNews&newscat=1';
-
-    // Nếu cần gửi cookie, thêm header 'Cookie'
-    const headers = {
-      'Accept': '*/*',
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
-      'Referer': 'https://ezsearch.fpts.com.vn/Services/EzData/default2.aspx?s=401'
-    };
-
-    const data = 'ProcessLoadRuntime.aspx?s=401&cGroup=News&cPath=Services/EzData/CompanyNews&newscat=1';
-
-    const response = await axios.post(url, data, { headers, timeout: 60000 });
-
-    // API trả về dạng JSON (hoặc có thể là XML, tuỳ API)
-    // Nếu là JSON:
-    const html = response.data;
-    const $ = cheerio.load(html);
-
-    const names = [];
-
-    const currentYear = new Date().getFullYear().toString();
-
-    $('div[style*="border-bottom"]').each((index, div) => {
-      const title = $(div).find('a.NewsManagement_Title span.text').text().trim();
-      // Lọc theo tiêu đề có chứa "Báo cáo tài chính" và năm hiện tại
-      if (
-        title.toLowerCase().includes('báo cáo tài chính') &&
-        title.includes(currentYear)
-      ) {
-        names.push(he.decode(title));
-      }
+    const response = await axios.get(`${CAFEF_API}${COMPANIES.MBB}`, {
+      headers: {
+        'accept': 'text/html',
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
+      },
+      timeout: 60000
     });
 
+    const html = response.data;
+    const $ = cheerio.load(html);
+    const currentYear = new Date().getFullYear().toString();
+    // Lấy tối đa 5 báo cáo mới nhất
+    const names = [];
+    $('.treeview table td').each((index, element) => {
+      const nameRaw = $(element).text().trim();
+      const name = he.decode(nameRaw);
+      if (index < 10) {
+        const filterCondition = [currentYear, 'báo cáo tài chính'];
+        if (filterCondition.every(y => name.trim().toLocaleLowerCase().includes(y))) {
+          names.push(`${name}`);
+        }
+      }
 
-    console.log('📢 [bctc-mbb.js:57]', names);
+    });
+
     if (names.length === 0) {
       console.log('Không tìm thấy báo cáo tài chính nào.');
       return;
     }
-
-    // Phần xử lý tiếp theo giữ nguyên như code cũ:
+    console.log('📢 [bctc-mbs.js:50]', names);
+    // Lọc ra các báo cáo chưa có trong DB
     const newNames = await filterNewNames(names, COMPANIES.MBB);
-    console.log('📢 [bctc-mbb.js:65]', newNames);
+    console.log('📢 [bctc-cdn.js:46]', newNames);
     if (newNames.length) {
       await insertBCTC(newNames, COMPANIES.MBB);
+
+      // Gửi thông báo Telegram cho từng báo cáo mới
       await Promise.all(
-        newNames.map(name => sendTelegramNotification(`Báo cáo tài chính của MBB::: ${name}`))
+        newNames.map(name => {
+          return sendTelegramNotification(`Báo cáo tài chính của MBB ::: ${name}`);
+        })
       );
       console.log(`Đã thêm ${newNames.length} báo cáo mới và gửi thông báo.`);
     } else {
       console.log('Không có báo cáo mới.');
     }
   } catch (error) {
-    console.error('Error fetching API:', error);
+    console.error('Error fetching HTML:', error);
     process.exit(1);
   }
 }
 
-fetchAndExtractDataFromAPI();
+fetchAndExtractData();

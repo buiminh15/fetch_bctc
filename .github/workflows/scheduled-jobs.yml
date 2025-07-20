@@ -72,6 +72,12 @@ jobs:
           - bctc-mbb.js
           - bctc-fmc.js
           - bctc-hnf.js
+          - bctc-bic.js
+          - bctc-mbs.js
+          - bctc-pdn.js
+          - bctc-sp2.js
+          - bctc-trc.js
+          - bctc-anv.js
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
