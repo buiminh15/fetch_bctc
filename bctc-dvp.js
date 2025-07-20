@@ -1,11 +1,9 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
 const { sendTelegramNotification } = require('./bot');
+const he = require('he');
 const { COMPANIES } = require('./constants/companies');
 const { insertBCTC, filterNewNames } = require('./bctc');
-
-console.log('📢 [bctc-cdn.js:7]', 'running');
-
 const axiosRetry = require('axios-retry');
 
 axiosRetry.default(axios, {
@@ -16,10 +14,9 @@ axiosRetry.default(axios, {
     return axiosRetry.isNetworkOrIdempotentRequestError(error) || error.code === 'ECONNABORTED';
   }
 });
-
 async function fetchAndExtractData() {
   try {
-    const response = await axios.get('https://danangport.com/bao-cao-dinh-ky-bat-thuong/', {
+    const response = await axios.get('https://dinhvuport.com.vn/vn/quan-he-co-dong/bao-cao-tai-chinh', {
       headers: {
         'accept': 'text/html',
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
@@ -29,16 +26,15 @@ async function fetchAndExtractData() {
 
     const html = response.data;
     const $ = cheerio.load(html);
-
-    // Lấy tối đa 5 báo cáo mới nhất
+    const currentYear = new Date().getFullYear().toString();
     const names = [];
-    $('tbody tr').each((index, element) => {
-      if (index < 5) {
-        const name = $(element).find('td').eq(1).text().trim();
-        // Ghép date và name để tăng tính duy nhất, hoặc custom lại nếu bạn muốn
+    $('.col-ct.col1-tl a').each((_, element) => {
+
+      const nameRaw = $(element).text().trim();
+      const name = he.decode(nameRaw);
+      const filterCondition = [currentYear, 'báo cáo tài chính'];
+      if (filterCondition.every(y => name.toLocaleLowerCase().includes(y))) {
         names.push(`${name}`);
-      } else {
-        return false; // Break the loop
       }
     });
 
@@ -46,17 +42,17 @@ async function fetchAndExtractData() {
       console.log('Không tìm thấy báo cáo tài chính nào.');
       return;
     }
-
+    console.log('📢 [bctc-hnf.js:48]', names);
     // Lọc ra các báo cáo chưa có trong DB
-    const newNames = await filterNewNames(names, COMPANIES.CDN);
-    console.log('📢 [bctc-cdn.js:46]', newNames);
+    const newNames = await filterNewNames(names, COMPANIES.DVP);
+    console.log('📢 [bctc-khs.js:42]', newNames);
     if (newNames.length) {
-      await insertBCTC(newNames, COMPANIES.CDN);
+      await insertBCTC(newNames, COMPANIES.DVP);
 
       // Gửi thông báo Telegram cho từng báo cáo mới
       await Promise.all(
         newNames.map(name => {
-          return sendTelegramNotification(`Báo cáo tài chính của Cảng Đà Nẵng ::: ${name}`);
+          return sendTelegramNotification(`Báo cáo tài chính của Công ty cổ phần DVP ::: ${name}`);
         })
       );
       console.log(`Đã thêm ${newNames.length} báo cáo mới và gửi thông báo.`);
@@ -65,15 +61,14 @@ async function fetchAndExtractData() {
     }
   } catch (error) {
     console.error('Error fetching HTML:', error);
+
     process.exit(1);
   }
 }
 
-
-async function fetchServicePrice() {
-  // Website: https://danangport.com/dich-vu-khach-hang/bieu-cuoc-cang-da-nang-va-quyet-dinh-ban-hanh-ve-gia/
+async function fetchPrice() {
   try {
-    const response = await axios.get('https://danangport.com/dich-vu-khach-hang/bieu-cuoc-cang-da-nang-va-quyet-dinh-ban-hanh-ve-gia/', {
+    const response = await axios.get('https://dinhvuport.com.vn/vn/serviceprice.html', {
       headers: {
         'accept': 'text/html',
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
@@ -84,29 +79,32 @@ async function fetchServicePrice() {
     const html = response.data;
     const $ = cheerio.load(html);
 
-    // Lấy tối đa 5 báo cáo mới nhất
+    // const currentYear = new Date().getFullYear().toString();
     const names = [];
-    $('tbody tr td:nth-child(2) h4 span').each((_, element) => {
-      const name = $(element).text().trim();
-      // Ghép date và name để tăng tính duy nhất, hoặc custom lại nếu bạn muốn
-      names.push(`${name}`);
+    $('.content-tab .content-inner').each((_, el) => {
+      // Lấy thẻ <p> đầu tiên bên trong mỗi .content-inner
+      const firstP = $(el).find('p').first();
+      if (firstP.length) {
+        const name = firstP.text().trim();
+        names.push(name);
+      }
     });
 
     if (names.length === 0) {
       console.log('Không tìm thấy báo cáo tài chính nào.');
       return;
     }
-    console.log('📢 [bctc-cdn.js:99]', names);
+    console.log('📢 [bctc-hnf.js:48]', names);
     // Lọc ra các báo cáo chưa có trong DB
-    const newNames = await filterNewNames(names, COMPANIES.CDN);
-    console.log('📢 [bctc-cdn.js:46]', newNames);
+    const newNames = await filterNewNames(names, COMPANIES.DVP);
+    console.log('📢 [bctc-khs.js:42]', newNames);
     if (newNames.length) {
-      await insertBCTC(newNames, COMPANIES.CDN);
+      await insertBCTC(newNames, COMPANIES.DVP);
 
       // Gửi thông báo Telegram cho từng báo cáo mới
       await Promise.all(
         newNames.map(name => {
-          return sendTelegramNotification(`Biểu giá của Cảng Đà Nẵng ::: ${name}`);
+          return sendTelegramNotification(`Báo cáo tài chính của Công ty cổ phần DVP ::: ${name}`);
         })
       );
       console.log(`Đã thêm ${newNames.length} báo cáo mới và gửi thông báo.`);
@@ -115,8 +113,12 @@ async function fetchServicePrice() {
     }
   } catch (error) {
     console.error('Error fetching HTML:', error);
+
     process.exit(1);
   }
 }
-fetchServicePrice();
+
+console.log('📢 [bctc-khs.js:57]', 'running');
 fetchAndExtractData();
+
+fetchPrice();
