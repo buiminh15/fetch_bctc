@@ -1,7 +1,7 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
 const { sendTelegramNotification } = require('./bot');
-const { COMPANIES } = require('./constants/companies');
+const { COMPANIES, CAFEF_API } = require('./constants/companies');
 const { insertBCTC, filterNewNames } = require('./bctc');
 const he = require('he');
 console.log('📢 [bctc-cdn.js:7]', 'running');
@@ -19,7 +19,7 @@ axiosRetry.default(axios, {
 
 async function fetchAndExtractData() {
   try {
-    const response = await axios.get('https://abic.com.vn/vi/bao-cao-tai-chinh', {
+    const response = await axios.get(`${CAFEF_API}${COMPANIES.LAF}`, {
       headers: {
         'accept': 'text/html',
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
@@ -32,13 +32,16 @@ async function fetchAndExtractData() {
     const currentYear = new Date().getFullYear().toString();
     // Lấy tối đa 5 báo cáo mới nhất
     const names = [];
-    $('tbody td.abic_name').each((_, el) => {
-      const nameRaw = $(el).text().trim();
+    $('.treeview table td').each((index, element) => {
+      const nameRaw = $(element).text().trim();
       const name = he.decode(nameRaw);
-      const filterCondition = [currentYear, 'báo cáo tài chính'];
-      if (filterCondition.every(y => name.toLocaleLowerCase().includes(y))) {
-        names.push(name);
+      if (index < 10) {
+        const filterCondition = [currentYear, 'báo cáo tài chính'];
+        if (filterCondition.every(y => name.trim().toLocaleLowerCase().includes(y))) {
+          names.push(`${name}`);
+        }
       }
+
     });
 
     if (names.length === 0) {
@@ -47,15 +50,15 @@ async function fetchAndExtractData() {
     }
     console.log('📢 [bctc-mbs.js:50]', names);
     // Lọc ra các báo cáo chưa có trong DB
-    const newNames = await filterNewNames(names, COMPANIES.ABI);
+    const newNames = await filterNewNames(names, COMPANIES.LAF);
     console.log('📢 [bctc-cdn.js:46]', newNames);
     if (newNames.length) {
-      await insertBCTC(newNames, COMPANIES.ABI);
+      await insertBCTC(newNames, COMPANIES.LAF);
 
       // Gửi thông báo Telegram cho từng báo cáo mới
       await Promise.all(
         newNames.map(name => {
-          return sendTelegramNotification(`Báo cáo tài chính của ABI ::: ${name}`);
+          return sendTelegramNotification(`Báo cáo tài chính của LAF ::: ${name}`);
         })
       );
       console.log(`Đã thêm ${newNames.length} báo cáo mới và gửi thông báo.`);

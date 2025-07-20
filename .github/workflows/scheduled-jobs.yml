@@ -86,6 +86,8 @@ jobs:
           - bctc-smb.js
           - bctc-net.js
           - bctc-abi.js
+          - bctc-gsp.js
+          - bctc-laf.js
     steps:
       - name: "❗️ Skip 23:00 if in special periods"
         run: |
