@@ -77,7 +77,6 @@ jobs:
           - bctc-pdn.js
           - bctc-sp2.js
           - bctc-trc.js
-          - bctc-anv.js
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
