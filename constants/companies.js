@@ -94,7 +94,8 @@ const COMPANIES = {
   ILB: 'ILB',
   TFC: 'TFC',
   VEA: 'VEA',
-  BMI: 'BMI'
+  BMI: 'BMI',
+  VAF: 'VAF',
 };
 
 const CAFEF_API = `https://cafef.vn/du-lieu/Ajax/CongTy/BaoCaoTaiChinh.aspx?sym=`;
