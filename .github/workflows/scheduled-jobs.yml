@@ -132,7 +132,7 @@ jobs:
           - bctc-vea.js
           - bctc-vhc.js
           - bctc-vnl.js
-          - bctc-rtb.js
+          # - bctc-rtb.js
     steps:
       - name: "❗️ Skip 23:00 if in special periods"
         run: |
