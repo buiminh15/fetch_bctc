@@ -114,6 +114,14 @@ jobs:
           - bctc-fox.js
           - bctc-pan.js
           - bctc-qns.js
+          - bctc-htg.js
+          - bctc-msh.js
+          - bctc-stb.js
+          - bctc-tcw.js
+          - bctc-tnh.js
+          - bctc-tos.js
+          - bctc-vnf.js
+          - bctc-vsm.js
     steps:
       - name: "❗️ Skip 23:00 if in special periods"
         run: |
