@@ -122,6 +122,16 @@ jobs:
           - bctc-tos.js
           - bctc-vnf.js
           - bctc-vsm.js
+          - bctc-bcf.js
+          - bctc-bdg.js
+          - bctc-bmi.js
+          - bctc-hah.js
+          - bctc-ilb.js
+          - bctc-mch.js
+          - bctc-tfc.js
+          - bctc-vea.js
+          - bctc-vhc.js
+          - bctc-vnl.js
     steps:
       - name: "❗️ Skip 23:00 if in special periods"
         run: |
