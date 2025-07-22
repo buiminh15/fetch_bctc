@@ -89,6 +89,18 @@ jobs:
           - bctc-gsp.js
           - bctc-laf.js
           - bctc-vaf.js
+          - bctc-adp.js
+          - bctc-drc.js
+          - bctc-cap.js
+          - bctc-foc.js
+          - bctc-nfc.js
+          - bctc-pdv.js
+          - bctc-scs.js
+          - bctc-tot.js
+          - bctc-vfg.js
+          - bctc-vgr.js
+          - bctc-vlb.js
+          - bctc-ntp.js
     steps:
       - name: "❗️ Skip 23:00 if in special periods"
         run: |
