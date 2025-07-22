@@ -101,6 +101,14 @@ jobs:
           - bctc-vgr.js
           - bctc-vlb.js
           - bctc-ntp.js
+          - bctc-ddv.js
+          - bctc-dmc.js
+          - bctc-hdm.js
+          - bctc-ist.js
+          - bctc-nsc.js
+          - bctc-scs.js
+          - bctc-sls.js
+          - bctc-tcl.js
     steps:
       - name: "❗️ Skip 23:00 if in special periods"
         run: |
