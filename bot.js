@@ -15,11 +15,17 @@ async function sendTelegramNotification(message) {
   try {
     await axios.post(url, {
       text: message,
-      chat_id: TELEGRAM_CHAT_ID
+      chat_id: TELEGRAM_CHAT_ID,
+      parse_mode: "Markdown"
     });
     console.log('Notification sent to Telegram');
   } catch (error) {
-    console.error('Error sending notification to Telegram:', error);
+    if (error.response) {
+      console.error("Telegram API Error:", error.response.status, error.response.statusText);
+      console.error("Response data:", error.response.data);
+    } else {
+      console.error("Axios Error:", error.message);
+    }
   }
 }
 
