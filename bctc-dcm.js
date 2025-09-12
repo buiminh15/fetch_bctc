@@ -7,6 +7,10 @@ const { insertBCTC, filterNewNames } = require('./bctc');
 console.log('📢 [bctc-dcm.js:7]', 'running');
 
 const axiosRetry = require('axios-retry');
+const https = require('https');
+const agent = new https.Agent({
+  rejectUnauthorized: false
+});
 
 axiosRetry.default(axios, {
   retries: 3,
@@ -24,7 +28,8 @@ async function fetchAndExtractData() {
         'accept': 'text/html',
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
       },
-      timeout: 60000
+      timeout: 60000,
+      httpsAgent: agent
     });
 
     const html = response.data;
