@@ -16,7 +16,7 @@ axiosRetry.default(axios, {
 console.log('📢 [bctc-bsr.js:7]', 'running');
 async function fetchAndExtractData() {
   try {
-    const response = await axios.get('http://www.yfatuf.com.vn/category/quan-he-nha-dau-tu/bao-cao-ket-qua-kinh-doanh/', {
+    const response = await axios.get('http://www.yfatuf.com.vn/category/quan-he-nha-dau-tu/cong-bo-thong-tin/', {
       headers: {
         'accept': 'text/html',
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
@@ -33,7 +33,10 @@ async function fetchAndExtractData() {
 
     $('.entry-title').each((_, el) => {
       const name = $(el).find('a').text().trim();
-      names.push(name);
+      const filterCondition = ['báo cáo tài chính', currentYear];
+      if (filterCondition.every(c => name.toLocaleLowerCase().includes(c))) {
+        names.push(name);
+      }
     });
 
     if (names.length === 0) {
