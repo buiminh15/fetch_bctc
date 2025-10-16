@@ -16,7 +16,7 @@ axiosRetry.default(axios, {
 });
 async function fetchAndExtractData() {
   try {
-    const response = await axios.get('https://www.binhminhplastic.com.vn/financial-statement.aspx', {
+    const response = await axios.get('https://binhminhplastic.com.vn/co-dong/bctc', {
       headers: {
         'accept': 'text/html',
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
@@ -28,12 +28,12 @@ async function fetchAndExtractData() {
     const $ = cheerio.load(html);
     const currentYear = new Date().getFullYear().toString();
     const names = [];
-    $(`#${currentYear} h2`).each((_, element) => {
-
+    $('.ModuleContent').find('a.group-hover\\:text-primary-1').each((_, element) => {
       const nameRaw = $(element).text().trim();
       const name = he.decode(nameRaw);
-      names.push(`${name}`);
+      names.push(name);
     });
+
 
     if (names.length === 0) {
       console.log('Không tìm thấy báo cáo tài chính nào.');
