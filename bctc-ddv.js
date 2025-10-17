@@ -19,7 +19,7 @@ axiosRetry.default(axios, {
 
 async function fetchAndExtractData() {
   try {
-    const response = await axios.get('https://www.dap-vinachem.com.vn/vi/quan-he-co-dong-l41.html', {
+    const response = await axios.get('https://www.dap-vinachem.com.vn/cong-bo-thong-tin', {
       headers: {
         'accept': 'text/html',
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
@@ -32,13 +32,10 @@ async function fetchAndExtractData() {
     const currentYear = new Date().getFullYear().toString();
     // Lấy tối đa 5 báo cáo mới nhất
     const names = [];
-    $('.news-col h3 a').each((_, el) => {
+    $('a.ubuntu.special-font.text-uppercase1').each((_, el) => {
       const nameRaw = $(el).text().trim();
       const name = he.decode(nameRaw);
-      const filterCondition = [currentYear, 'báo cáo tài chính'];
-      if (filterCondition.every(y => name.toLocaleLowerCase().includes(y))) {
-        names.push(name);
-      }
+      names.push(name);
     });
 
     if (names.length === 0) {
