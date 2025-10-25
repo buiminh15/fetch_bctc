@@ -19,7 +19,7 @@ axiosRetry.default(axios, {
 
 async function fetchAndExtractData() {
   try {
-    const response = await axios.get(`${CAFEF_API}${COMPANIES.SZL}`, {
+    const response = await axios.get(`https://szl.com.vn/co-dong/`, {
       headers: {
         'accept': 'text/html',
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
@@ -32,11 +32,11 @@ async function fetchAndExtractData() {
     const currentYear = new Date().getFullYear().toString();
     // Lấy tối đa 5 báo cáo mới nhất
     const names = [];
-    $('.treeview table td').each((index, element) => {
+    $('#tab-content-25 span').each((index, element) => {
       const nameRaw = $(element).text().trim();
       const name = he.decode(nameRaw);
       if (index < 10) {
-        const filterCondition = [currentYear, 'báo cáo tài chính'];
+        const filterCondition = [currentYear, 'báo cáo'];
         if (filterCondition.every(y => name.trim().toLocaleLowerCase().includes(y))) {
           names.push(`${name}`);
         }

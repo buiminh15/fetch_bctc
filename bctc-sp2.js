@@ -19,7 +19,7 @@ axiosRetry.default(axios, {
 
 async function fetchAndExtractData() {
   try {
-    const response = await axios.get(`${CAFEF_API}${COMPANIES.SP2}`, {
+    const response = await axios.get(`http://supan2.net/category/quan-he-co-dong/bao-cao-tai-chinh/`, {
       headers: {
         'accept': 'text/html',
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
@@ -32,15 +32,13 @@ async function fetchAndExtractData() {
     const currentYear = new Date().getFullYear().toString();
     // Lấy tối đa 5 báo cáo mới nhất
     const names = [];
-    $('.treeview table td').each((index, element) => {
+    $('.news-post h2').each((index, element) => {
       const nameRaw = $(element).text().trim();
       const name = he.decode(nameRaw);
       if (index < 10) {
-        const filterCondition = [currentYear, 'báo cáo tài chính'];
-        if (filterCondition.every(y => name.trim().toLocaleLowerCase().includes(y))) {
-          names.push(`${name}`);
-        }
+        names.push(`${name}`);
       }
+
 
     });
 

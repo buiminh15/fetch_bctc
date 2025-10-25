@@ -19,7 +19,7 @@ axiosRetry.default(axios, {
 
 async function fetchAndExtractData() {
   try {
-    const response = await axios.get(`${CAFEF_API}${COMPANIES.ANV}`, {
+    const response = await axios.get(`https://navicorp.com.vn/vi/investors`, {
       headers: {
         'accept': 'text/html',
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
@@ -29,20 +29,22 @@ async function fetchAndExtractData() {
 
     const html = response.data;
     const $ = cheerio.load(html);
+    // 1. Tìm h2.title.text-cap có text chính xác là "BÁO CÁO TÀI CHÍNH"
+    const h2 = $('h2.title.text-cap').filter((_, el) => $(el).text().trim() === 'BÁO CÁO TÀI CHÍNH');
+
+    // Bước 2: tìm div.container.text-center cùng cấp (sau phần title-block)
+    const containerDiv = h2.closest('div.title-block').nextAll('div.container.text-center').first();
+
     const currentYear = new Date().getFullYear().toString();
-    // Lấy tối đa 5 báo cáo mới nhất
     const names = [];
-    $('.treeview table td').each((index, element) => {
-      const nameRaw = $(element).text().trim();
-      const name = he.decode(nameRaw);
-      if (index < 10) {
-        const filterCondition = [currentYear, 'báo cáo tài chính'];
-        if (filterCondition.every(y => name.trim().toLocaleLowerCase().includes(y))) {
-          names.push(`${name}`);
-        }
+    containerDiv.find('a').each((_, el) => {
+      const text = $(el).text().trim();
+      if (text.includes(currentYear)) {
+        names.push(text);
       }
 
     });
+
 
     if (names.length === 0) {
       console.log('Không tìm thấy báo cáo tài chính nào.');

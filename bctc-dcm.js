@@ -68,7 +68,6 @@ async function fetchAndExtractData() {
   }
 }
 
-
 async function fetchAndExtractPublicInfo() {
   try {
     const response = await axios.get('https://www.pvcfc.com.vn/quan-he-dau-tu/cong-bo-thong-tin-khac-1/2025-cong-bo-thong-tin-khac', {
@@ -76,7 +75,8 @@ async function fetchAndExtractPublicInfo() {
         'accept': 'text/html',
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
       },
-      timeout: 60000
+      timeout: 60000,
+      httpsAgent: agent  // ← Add this line to bypass SSL verification
     });
 
     const html = response.data;
@@ -113,7 +113,7 @@ async function fetchAndExtractPublicInfo() {
     }
   } catch (error) {
     console.error('Error fetching HTML:', error);
-    process.exit(1);
+    // Optionally remove process.exit(1) if you don't want to crash the script on error
   }
 }
 
