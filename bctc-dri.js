@@ -18,7 +18,7 @@ axiosRetry.default(axios, {
 
 async function fetchAndExtractData() {
   try {
-    const response = await axios.get('https://dri.com.vn/index.php/codong/tttc/52-tttcnam2025', {
+    const response = await axios.get('https://dri.com.vn/categories/thong-tin-tai-chinh-134.html', {
       headers: {
         'accept': 'text/html',
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
@@ -31,9 +31,9 @@ async function fetchAndExtractData() {
 
     const names = [];
 
-    $('.entry-title').each((index, el) => {
+    $('.article-item.cat-article-item-133').each((index, el) => {
       if (index < 3) {
-        const name = $(el).find('a').text().trim();
+        const name = $(el).find('h4 a').text().trim();
         names.push(name);
       }
     });
@@ -68,7 +68,7 @@ async function fetchAndExtractData() {
 
 async function fetchAndExtractPublicInfo() {
   try {
-    const response = await axios.get('https://dri.com.vn/index.php/codong/baocao/53-bcsxkd2025', {
+    const response = await axios.get('https://dri.com.vn/categories/bao-cao-san-xuat-kinh-doanh-133.html', {
       headers: {
         'accept': 'text/html',
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
@@ -80,9 +80,9 @@ async function fetchAndExtractPublicInfo() {
 
     const names = [];
 
-    $('.entry-title').each((index, el) => {
+    $('.article-item.cat-article-item-133').each((index, el) => {
       if (index < 3) {
-        const name = $(el).find('a').text().trim();
+        const name = $(el).find('h4 a').text().trim();
         names.push(name);
       }
     });

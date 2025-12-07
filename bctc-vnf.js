@@ -7,6 +7,10 @@ const he = require('he');
 console.log('📢 [bctc-cdn.js:7]', 'running');
 
 const axiosRetry = require('axios-retry');
+const https = require('https');
+const agent = new https.Agent({
+  rejectUnauthorized: false
+});
 
 axiosRetry.default(axios, {
   retries: 3,
@@ -19,12 +23,13 @@ axiosRetry.default(axios, {
 
 async function fetchAndExtractData() {
   try {
-    const response = await axios.get(`${CAFEF_API}${COMPANIES.VNF}`, {
+    const response = await axios.get(`https://www.vinafreight.com/thong-tin-dau-tu/bao-cao-tai-chinh.html`, {
       headers: {
         'accept': 'text/html',
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
       },
-      timeout: 60000
+      timeout: 60000,
+      httpsAgent: agent
     });
 
     const html = response.data;
@@ -32,11 +37,11 @@ async function fetchAndExtractData() {
     const currentYear = new Date().getFullYear().toString();
     // Lấy tối đa 5 báo cáo mới nhất
     const names = [];
-    $('.treeview table td').each((index, element) => {
+    $('h3.title').each((index, element) => {
       const nameRaw = $(element).text().trim();
       const name = he.decode(nameRaw);
       if (index < 10) {
-        const filterCondition = [currentYear, 'báo cáo tài chính'];
+        const filterCondition = [currentYear];
         if (filterCondition.every(y => name.trim().toLocaleLowerCase().includes(y))) {
           names.push(`${name}`);
         }
@@ -56,11 +61,11 @@ async function fetchAndExtractData() {
       await insertBCTC(newNames, COMPANIES.VNF);
 
       // Gửi thông báo Telegram cho từng báo cáo mới
-      // await Promise.all(
-      //   newNames.map(name => {
-      //     return sendTelegramNotification(`Báo cáo tài chính của VNF ::: ${name}`);
-      //   })
-      // );
+      await Promise.all(
+        newNames.map(name => {
+          return sendTelegramNotification(`Báo cáo tài chính của VNF ::: ${name}`);
+        })
+      );
       console.log(`Đã thêm ${newNames.length} báo cáo mới và gửi thông báo.`);
     } else {
       console.log('Không có báo cáo mới.');
