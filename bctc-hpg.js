@@ -108,11 +108,11 @@ async function fetchBCSXKD() {
       await insertBCTC(newNames, COMPANIES.HPG);
 
       // Gửi thông báo Telegram cho từng báo cáo mới
-      // await Promise.all(
-      //   newNames.map(name => {
-      //     return sendTelegramNotification(`Công bố thông tin của Hòa Phát::: ${name}`);
-      //   })
-      // );
+      await Promise.all(
+        newNames.map(name => {
+          return sendTelegramNotification(`Công bố thông tin của Hòa Phát::: ${name}`);
+        })
+      );
       console.log(`Đã thêm ${newNames.length} báo cáo mới và gửi thông báo.`);
     } else {
       console.log('Không có báo cáo mới.');
