@@ -3,6 +3,11 @@ const cheerio = require('cheerio');
 const { sendTelegramNotification } = require('./bot');
 const { COMPANIES } = require('./constants/companies');
 const { insertBCTC, filterNewNames } = require('./bctc');
+const https = require('https');
+
+const agent = new https.Agent({
+  rejectUnauthorized: false
+});
 
 const axiosRetry = require('axios-retry');
 
@@ -19,6 +24,7 @@ axiosRetry.default(axios, {
 async function fetchAndExtractData() {
   try {
     const response = await axios.get('https://noibaicatering.com.vn/quan-he-co-dong/bao-cao-tai-chinh/', {
+      httpsAgent: agent,
       headers: {
         'accept': 'text/html',
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
@@ -31,11 +37,9 @@ async function fetchAndExtractData() {
 
     const names = [];
 
-    $('h2.entry-title').each((index, el) => {
-      if (index < 3) {
-        const name = $(el).find('a').text().trim();
-        names.push(name);
-      }
+    $('h3.elementor-heading-title.elementor-size-default').each((index, el) => {
+      const name = $(el).find('a').text().trim();
+      names.push(name);
     });
     if (names.length === 0) {
       console.log('Không tìm thấy báo cáo tài chính nào.');
