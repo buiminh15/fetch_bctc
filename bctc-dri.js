@@ -18,25 +18,30 @@ axiosRetry.default(axios, {
 
 async function fetchAndExtractData() {
   try {
-    const response = await axios.get('https://dri.com.vn/categories/thong-tin-tai-chinh-134.html', {
-      headers: {
-        'accept': 'text/html',
-        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
-      },
-      timeout: 60000
-    });
-
-    const html = response.data;
-    const $ = cheerio.load(html);
-
-    const names = [];
-
-    $('.article-item.cat-article-item-133').each((index, el) => {
-      if (index < 3) {
-        const name = $(el).find('h4 a').text().trim();
-        names.push(name);
+    const response = await axios.get(
+      'https://gateway.fpts.com.vn/news/api/gateway/v1/mobile/list?folder=86&code=DRI&pageSize=8&selectedPage=1&cbtt=1&from=01-01-1970&to=01-01-3000&newsType=1',
+      {
+        headers: {
+          'Accept': 'application/json',
+          'Accept-Language': 'en-US,en;q=0.7',
+          'Cache-Control': 'no-cache',
+          'Connection': 'keep-alive',
+          'Sec-Fetch-Mode': 'cors',
+          'Sec-Fetch-Site': 'same-site',
+          'Sec-GPC': '1',
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
+          'X-Requested-Store': 'default',
+          'X-Requested-With': 'XMLHttpRequest',
+          'sec-ch-ua': '"Not)A;Brand";v="8", "Chromium";v="138", "Brave";v="138"',
+          'sec-ch-ua-mobile': '?0',
+          'sec-ch-ua-platform': '"Windows"'
+        },
+        timeout: 60000
       }
-    });
+    );
+
+    const items = response.data.Data.Table1 || [];
+    const names = items.filter(item => item.Title).map(item => item.Title && item.Title.trim());
     if (names.length === 0) {
       console.log('Không tìm thấy báo cáo tài chính nào.');
       return;
