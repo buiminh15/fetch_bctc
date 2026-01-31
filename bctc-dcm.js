@@ -23,7 +23,7 @@ axiosRetry.default(axios, {
 
 async function fetchAndExtractData() {
   try {
-    const response = await axios.get('https://www.pvcfc.com.vn/quan-he-dau-tu/bao-cao-tai-chinh/2025-bctc', {
+    const response = await axios.get('https://www.pvcfc.com.vn/bao-cao-tai-chinh', {
       headers: {
         'accept': 'text/html',
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
@@ -37,8 +37,8 @@ async function fetchAndExtractData() {
 
     const names = [];
 
-    $('.list .item.d-flex.aic.jcb').each((_, el) => {
-      const name = $(el).find('.ctn.text-3.f-16.fw-5').text().trim();
+    $('.title.font-bold.transition-all.duration-300').each((_, el) => {
+      const name = $(el).text().trim();
       names.push(name);
     });
 
@@ -70,7 +70,7 @@ async function fetchAndExtractData() {
 
 async function fetchAndExtractPublicInfo() {
   try {
-    const response = await axios.get('https://www.pvcfc.com.vn/quan-he-dau-tu/cong-bo-thong-tin-khac-1/2025-cong-bo-thong-tin-khac', {
+    const response = await axios.get('https://www.pvcfc.com.vn/CBTT-khac-nam-2026', {
       headers: {
         'accept': 'text/html',
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
@@ -84,11 +84,9 @@ async function fetchAndExtractPublicInfo() {
 
     const names = [];
 
-    $('.list .item.d-flex.aic.jcb').each((index, el) => {
-      if (index < 4) {
-        const name = $(el).find('.ctn.text-3.f-16.fw-5').text().trim();
-        names.push(name);
-      }
+    $('.title.font-bold.transition-all.duration-300').each((_, el) => {
+      const name = $(el).text().trim();
+      names.push(name);
     });
     if (names.length === 0) {
       console.log('Không tìm thấy báo cáo tài chính nào.');
